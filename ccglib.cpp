@@ -56,8 +56,6 @@ namespace ccglib {
 		double res = 0; bool zr = 0;
 		for (int i = 0; i < n; i++) {
 			res = (pt ? cross(points[i]-ref,points[(i+1)%n]-ref) : cross(points[i]-points[(i-1+n)%n], points[(i+1)%n]-points[i])).z;
-			// if (!pt) ref = cross(points[i]-points[(i-1+n)%n], points[(i+1)%n]-points[i]).z;
-			// else ref = cross(points[i]-ref,points[(i+1)%n]-ref).z;
 			t = (res > 0 ? 1 : (res < 0 ? -1: 0));
 			dir = (i == 0 ? t : (t == 0 ? dir : (dir == 0 ? t : (dir == t ? dir : -2))));
 			if (pt) zr = (zr ? 1 : (t == 0));
