@@ -42,13 +42,34 @@ namespace ccglib {
 		return sqrt(dot(u,u));
 	}
 	vector3D cross(const vector3D& u, const vector3D& v) {
-		return vector3D(u.y*v.z-v.y*u.z, v.z*u.x-u.z*v.x, u.x*v.y-v.x*u.y);
+		return vector3D(u.y*v.z-v.y*u.z, u.z*v.x-v.z*u.x, u.x*v.y-v.x*u.y);
 	}
 	vector3D proj(const vector3D& u, const vector3D& v) {
 		return (dot(u,v)/dot(v,v))*v;
 	}
 	vector3D perp(const vector3D& u, const vector3D& v) {
 		return u-proj(u,v);
+	}
+	int convex2D_tests(const vector<vector3D>& points, bool pt = 0, vector3D ref = vector3D()) {
+		int n = points.size(), t = -2, dir = -2;
+		if (n < 3) return -2;
+		double ref = 0; bool zr = 0;
+		for (int i = 0; i < n; i++) {
+			if (!pt) ref = cross(points[i]-points[(i-1+n)%n], points[(i+1)%n]-points[i]).z;
+			else ref = cross(points[i]-ref,points[(i+1)%n]-ref).z;
+			t = (ref > 0 ? 1 : (ref < 0 ? -1: 0));
+			if (!pt) dir = (i == 0 ? t : (t == 0 ? dir : (dir == 0 ? t : (dir == t ? dir : -2))));
+			else dir = (i == 0 ? t : (t == 0 ? dir : (dir == 0 ? t : (dir == t ? dir : -2)))), zr = (zr ? 1 : (t == 0));
+		}
+		return (!pt ? dir : (zr && (dir != -2)));
+	}
+	double area2D(const vector<vector3D>& points) {
+		int n = points.size();
+		if (n < 3) return 0;
+		double ans = 0;
+		for (int i = 0, j = n-1; i < n; j = i++)
+			ans += cross(points[i],points[j]).z;
+		return abs(ans)/2.0;
 	}
 }
 
