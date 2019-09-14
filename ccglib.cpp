@@ -53,15 +53,16 @@ namespace ccglib {
 	int convex2D_tests(const vector<vector3D>& points, bool pt = 0, vector3D ref = vector3D()) {
 		int n = points.size(), t = -2, dir = -2;
 		if (n < 3) return -2;
-		double ref = 0; bool zr = 0;
+		double res = 0; bool zr = 0;
 		for (int i = 0; i < n; i++) {
-			if (!pt) ref = cross(points[i]-points[(i-1+n)%n], points[(i+1)%n]-points[i]).z;
-			else ref = cross(points[i]-ref,points[(i+1)%n]-ref).z;
-			t = (ref > 0 ? 1 : (ref < 0 ? -1: 0));
-			if (!pt) dir = (i == 0 ? t : (t == 0 ? dir : (dir == 0 ? t : (dir == t ? dir : -2))));
-			else dir = (i == 0 ? t : (t == 0 ? dir : (dir == 0 ? t : (dir == t ? dir : -2)))), zr = (zr ? 1 : (t == 0));
+			res = (pt ? cross(points[i]-ref,points[(i+1)%n]-ref) : cross(points[i]-points[(i-1+n)%n], points[(i+1)%n]-points[i])).z;
+			// if (!pt) ref = cross(points[i]-points[(i-1+n)%n], points[(i+1)%n]-points[i]).z;
+			// else ref = cross(points[i]-ref,points[(i+1)%n]-ref).z;
+			t = (res > 0 ? 1 : (res < 0 ? -1: 0));
+			dir = (i == 0 ? t : (t == 0 ? dir : (dir == 0 ? t : (dir == t ? dir : -2))));
+			if (pt) zr = (zr ? 1 : (t == 0));
 		}
-		return (!pt ? dir : (zr && (dir != -2)));
+		return (!pt ? dir : (!zr ? dir : (dir != -2 ? 0 : -2)));
 	}
 	double area2D(const vector<vector3D>& points) {
 		int n = points.size();
@@ -74,10 +75,32 @@ namespace ccglib {
 }
 
 int main() {
-	ccglib::vector3D a(1,0,0), b(0,1,0), c(0,0,1), temp;
-	a.print();
-	temp.print();
-	temp = -ccglib::vector3D(1,0,0);
-	temp.print();
+	int T; cin >> T;
+	while(T--) {
+		char c; cin >> c;
+		if (c == 'p') {
+			int n; cin >> n;
+			vector<ccglib::vector3D> polygon(n);
+			ccglib::vector3D point;
+			cin >> point.x >> point.y;
+			for (int i = 0; i < n; i++) 
+				cin >> polygon[i].x >> polygon[i].y;
+			int ans = ccglib::convex2D_tests(polygon, 1, point);
+			cout << (ans == 0 ? "ON" : (abs(ans) == 1 ? "INSIDE" : "OUTSIDE")) << endl;
+		} else if (c == 'x') {
+			int n; cin >> n;
+			vector<ccglib::vector3D> polygon(n);
+			for (int i = 0; i < n; i++) 
+				cin >> polygon[i].x >> polygon[i].y;
+			int ans = ccglib::convex2D_tests(polygon);
+			cout << (abs(ans) == 1 ? "CONVEX" : "NON-CONVEX") << endl;
+		} else if (c == 'a') {
+			ccglib::vector3D obj[2], v_obj[2];
+			for (int i = 0; i < 2; i++) 
+				cin >> obj[i].x >> obj[i].y >> obj[i].z >> v_obj[i].x >> v_obj[i].y >> v_obj[i].z;
+			double ans = ccglib::dot(obj[1]-obj[0], v_obj[1]-v_obj[0]);
+			cout << (ans < 0 ? "APPROACH" : (ans == 0 ? "NEITHER" : "SEPARATE")) << endl;
+		}
+	}
 	return 0;
 }
