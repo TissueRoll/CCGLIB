@@ -70,6 +70,25 @@ namespace ccglib {
 			ans += cross(points[i],points[j]).z;
 		return abs(ans)/2.0;
 	}
+	vector<vector3D> convex_hull(vector<vector3D> pts) {
+		sort(pts.begin(), pts.end(), [](vector3D a, vector3D b){
+			if (a.x != b.x) return a.x < b.x;
+			if (a.y != b.y) return a.y < b.y;
+			return a.z < b.z;
+		});
+		int top = 0;
+		vector<vector3D> stk(2*pts.size());
+		for (int i = 0; i < pts.size(); i++) {
+			while (top >= 2 and cross(stk[top-1]-stk[top-2], pt[i]-stk[top-2]).z <= 0) top--;
+			stk[top++] = pts[i];
+		}
+		for (int i = pts.size()-2, t = top+1; i >= 0; i--) {
+			while (top >= t and cross(stk[top-1]-stk[top-2], pt[i]-stk[top-2]).z <= 0) top--;
+			stk[top++] = pts[i];
+		}
+		stk.resize(top-1);
+		return stk;
+	}
 }
 
 int main() {
