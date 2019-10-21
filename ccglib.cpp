@@ -99,38 +99,40 @@ namespace ccglib {
 }
 
 int main() {
+	cout.precision(4);
+	cout << fixed;
 	int T; cin >> T;
 	while(T--) {
-		char given, output; cin >> given >> output;
+		char s, d; cin >> s >> d;
 		ccglib::vector3D u, v;
-		if (given == 'i') {
+		if (s == 'i') {
 			cin >> u.x >> u.y >> u.z;
-			if (output == 'i') {
+			if (d == 'i') {
 				cout << u.x << ' ' << u.y << ' ' << u.z << endl;
 			} else {
-				pair<ccglib::vector3D,ccglib::vector3D> ans = ccglib::to_four_numbers(u, (output == 'p' ? 0 : 1));
+				pair<ccglib::vector3D,ccglib::vector3D> ans = ccglib::to_four_numbers(u, (d == 'p' ? 0 : 1));
 				cout << ans.first.x << ' ' << ans.first.y << ' ' << ans.second.x << ' ' << ans.second.y << endl;
 			}
-		} else if (given == 'p') {
+		} else if (s == 'p') {
 			cin >> u.x >> u.y >> v.x >> v.y;
 			u.z = 1; v.z = 0;
-			if (output == 'i') {
+			if (d == 'i') {
 				ccglib::vector3D ans = ccglib::to_implicit(u,v);
 				cout << ans.x << ' ' << ans.y << ' ' << ans.z << endl;
-			} else if (output == 'p') {
+			} else if (d == 'p') {
 				cout << u.x << ' ' << u.y << ' ' << v.x << ' ' << v.y << endl;
-			} else if (output == '2') {
+			} else if (d == '2') {
 				cout << u.x << ' ' << u.y << ' ' << u.x+v.x << ' ' << u.y+v.y << endl;
 			}
-		} else if (given == '2') {
+		} else if (s == '2') {
 			cin >> u.x >> u.y >> v.x >> v.y;
 			u.z = 1; v.z = 1;
-			if (output == 'i') {
+			if (d == 'i') {
 				ccglib::vector3D ans = ccglib::to_implicit(u,v);
 				cout << ans.x << ' ' << ans.y << ' ' << ans.z << endl;
-			} else if (output == 'p') {
+			} else if (d == 'p') {
 				cout << u.x << ' ' << u.y << ' ' << v.x-u.x << ' ' << v.y-u.y << endl;
-			} else if (output == '2') {
+			} else if (d == '2') {
 				cout << u.x << ' ' << u.y << ' ' << v.x << ' ' << v.y << endl;
 			}
 		}
