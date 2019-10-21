@@ -79,44 +79,60 @@ namespace ccglib {
 		int top = 0;
 		vector<vector3D> stk(2*pts.size());
 		for (int i = 0; i < pts.size(); i++) {
-			while (top >= 2 and cross(stk[top-1]-stk[top-2], pt[i]-stk[top-2]).z <= 0) top--;
+			while (top >= 2 and cross(stk[top-1]-stk[top-2], pts[i]-stk[top-2]).z <= 0) top--;
 			stk[top++] = pts[i];
 		}
 		for (int i = pts.size()-2, t = top+1; i >= 0; i--) {
-			while (top >= t and cross(stk[top-1]-stk[top-2], pt[i]-stk[top-2]).z <= 0) top--;
+			while (top >= t and cross(stk[top-1]-stk[top-2], pts[i]-stk[top-2]).z <= 0) top--;
 			stk[top++] = pts[i];
 		}
 		stk.resize(top-1);
 		return stk;
+	}
+	vector3D to_implicit(vector3D u, vector3D v) {
+		return cross(u,v);
+	}
+	pair<vector3D, vector3D> to_four_numbers(vector3D u, bool type) {
+		double d = -u.z/(dot(u,u)-u.z*u.z);
+		return make_pair(vector3D(d*u.x, d*u.y, 1), vector3D(d*u.x*type + u.y, d*u.y*type - u.x, type));
 	}
 }
 
 int main() {
 	int T; cin >> T;
 	while(T--) {
-		char c; cin >> c;
-		if (c == 'p') {
-			int n; cin >> n;
-			vector<ccglib::vector3D> polygon(n);
-			ccglib::vector3D point;
-			cin >> point.x >> point.y;
-			for (int i = 0; i < n; i++) 
-				cin >> polygon[i].x >> polygon[i].y;
-			int ans = ccglib::convex2D_tests(polygon, 1, point);
-			cout << (ans == 0 ? "ON" : (abs(ans) == 1 ? "INSIDE" : "OUTSIDE")) << endl;
-		} else if (c == 'x') {
-			int n; cin >> n;
-			vector<ccglib::vector3D> polygon(n);
-			for (int i = 0; i < n; i++) 
-				cin >> polygon[i].x >> polygon[i].y;
-			int ans = ccglib::convex2D_tests(polygon);
-			cout << (ans != -2 ? "CONVEX" : "NON-CONVEX") << endl;
-		} else if (c == 'a') {
-			ccglib::vector3D obj[2], v_obj[2];
-			for (int i = 0; i < 2; i++) 
-				cin >> obj[i].x >> obj[i].y >> obj[i].z >> v_obj[i].x >> v_obj[i].y >> v_obj[i].z;
-			double ans = ccglib::dot(obj[1]-obj[0], v_obj[1]-v_obj[0]);
-			cout << (ans < 0 ? "APPROACH" : (ans == 0 ? "NEITHER" : "SEPARATE")) << endl;
+		char given, output; cin >> given >> output;
+		ccglib::vector3D u, v;
+		if (given == 'i') {
+			cin >> u.x >> u.y >> u.z;
+			if (output == 'i') {
+				cout << u.x << ' ' << u.y << ' ' << u.z << endl;
+			} else {
+				pair<ccglib::vector3D,ccglib::vector3D> ans = ccglib::to_four_numbers(u, (output == 'p' ? 0 : 1));
+				cout << ans.first.x << ' ' << ans.first.y << ' ' << ans.second.x << ' ' << ans.second.y << endl;
+			}
+		} else if (given == 'p') {
+			cin >> u.x >> u.y >> v.x >> v.y;
+			u.z = 1; v.z = 0;
+			if (output == 'i') {
+				ccglib::vector3D ans = ccglib::to_implicit(u,v);
+				cout << ans.x << ' ' << ans.y << ' ' << ans.z << endl;
+			} else if (output == 'p') {
+				cout << u.x << ' ' << u.y << ' ' << v.x << ' ' << v.y << endl;
+			} else if (output == '2') {
+				cout << u.x << ' ' << u.y << ' ' << u.x+v.x << ' ' << u.y+v.y << endl;
+			}
+		} else if (given == '2') {
+			cin >> u.x >> u.y >> v.x >> v.y;
+			u.z = 1; v.z = 1;
+			if (output == 'i') {
+				ccglib::vector3D ans = ccglib::to_implicit(u,v);
+				cout << ans.x << ' ' << ans.y << ' ' << ans.z << endl;
+			} else if (output == 'p') {
+				cout << u.x << ' ' << u.y << ' ' << v.x-u.x << ' ' << v.y-u.y << endl;
+			} else if (output == '2') {
+				cout << u.x << ' ' << u.y << ' ' << v.x << ' ' << v.y << endl;
+			}
 		}
 	}
 	return 0;
