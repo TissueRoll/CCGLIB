@@ -31,8 +31,13 @@ namespace ccglib {
 		bool operator!=(const vector3D& r) const {
 			return (x != r.x) || (y != r.y) || (z != r.z);
 		}
-		void print() const {
+		void print(int bitmask, double eps) const {
 			printf("%lf %lf %lf\n",x,y,z);
+		}
+		void apply_eps(double eps = 1e-9) {
+			x = (abs(x) < eps ? 0 : x);
+			y = (abs(y) < eps ? 0 : y);
+			z = (abs(z) < eps ? 0 : z);
 		}
 	};
 	double dot(const vector3D& u, const vector3D& v) {
@@ -101,6 +106,7 @@ namespace ccglib {
 int main() {
 	cout.precision(4);
 	cout << fixed;
+	double eps = 1e-5;
 	int T; cin >> T;
 	while(T--) {
 		char s, d; cin >> s >> d;
@@ -108,9 +114,11 @@ int main() {
 		if (s == 'i') {
 			cin >> u.x >> u.y >> u.z;
 			if (d == 'i') {
+				u.apply_eps(eps);
 				cout << u.x << ' ' << u.y << ' ' << u.z << endl;
 			} else {
 				pair<ccglib::vector3D,ccglib::vector3D> ans = ccglib::to_four_numbers(u, (d == 'p' ? 0 : 1));
+				ans.first.apply_eps(eps); ans.second.apply_eps(eps);
 				cout << ans.first.x << ' ' << ans.first.y << ' ' << ans.second.x << ' ' << ans.second.y << endl;
 			}
 		} else if (s == 'p') {
@@ -118,10 +126,13 @@ int main() {
 			u.z = 1; v.z = 0;
 			if (d == 'i') {
 				ccglib::vector3D ans = ccglib::to_implicit(u,v);
+				ans.apply_eps(eps);
 				cout << ans.x << ' ' << ans.y << ' ' << ans.z << endl;
 			} else if (d == 'p') {
+				u.apply_eps(eps); v.apply_eps(eps);
 				cout << u.x << ' ' << u.y << ' ' << v.x << ' ' << v.y << endl;
 			} else if (d == '2') {
+				u.apply_eps(eps); v.apply_eps(eps);
 				cout << u.x << ' ' << u.y << ' ' << u.x+v.x << ' ' << u.y+v.y << endl;
 			}
 		} else if (s == '2') {
@@ -129,10 +140,13 @@ int main() {
 			u.z = 1; v.z = 1;
 			if (d == 'i') {
 				ccglib::vector3D ans = ccglib::to_implicit(u,v);
+				ans.apply_eps(eps);
 				cout << ans.x << ' ' << ans.y << ' ' << ans.z << endl;
 			} else if (d == 'p') {
+				u.apply_eps(eps); v.apply_eps(eps);
 				cout << u.x << ' ' << u.y << ' ' << v.x-u.x << ' ' << v.y-u.y << endl;
 			} else if (d == '2') {
+				u.apply_eps(eps); v.apply_eps(eps);
 				cout << u.x << ' ' << u.y << ' ' << v.x << ' ' << v.y << endl;
 			}
 		}
