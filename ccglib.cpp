@@ -31,7 +31,12 @@ namespace ccglib {
 		bool operator!=(const vector3D& r) const {
 			return (x != r.x) || (y != r.y) || (z != r.z);
 		}
-		void print(int bitmask, double eps) const {
+		bool operator<(const vector3D& r) const {
+			if (x != r.x) return x < r.x;
+			if (y != r.y) return y < r.y;
+			return z < r.z;
+		}
+		void print() const {
 			printf("%lf %lf %lf\n",x,y,z);
 		}
 		void apply_eps(double eps = 1e-9) {
@@ -76,11 +81,7 @@ namespace ccglib {
 		return abs(ans)/2.0;
 	}
 	vector<vector3D> convex_hull(vector<vector3D> pts) {
-		sort(pts.begin(), pts.end(), [](vector3D a, vector3D b){
-			if (a.x != b.x) return a.x < b.x;
-			if (a.y != b.y) return a.y < b.y;
-			return a.z < b.z;
-		});
+		sort(pts.begin(), pts.end());
 		int top = 0;
 		vector<vector3D> stk(2*pts.size());
 		for (int i = 0; i < pts.size(); i++) {
@@ -106,50 +107,26 @@ namespace ccglib {
 int main() {
 	cout.precision(4);
 	cout << fixed;
-	double eps = 1e-5;
-	int T; cin >> T;
-	while(T--) {
-		char s, d; cin >> s >> d;
-		ccglib::vector3D u, v;
-		if (s == 'i') {
-			cin >> u.x >> u.y >> u.z;
-			if (d == 'i') {
-				u.apply_eps(eps);
-				cout << u.x << ' ' << u.y << ' ' << u.z << endl;
-			} else {
-				pair<ccglib::vector3D,ccglib::vector3D> ans = ccglib::to_four_numbers(u, (d == 'p' ? 0 : 1));
-				ans.first.apply_eps(eps); ans.second.apply_eps(eps);
-				cout << ans.first.x << ' ' << ans.first.y << ' ' << ans.second.x << ' ' << ans.second.y << endl;
-			}
-		} else if (s == 'p') {
-			cin >> u.x >> u.y >> v.x >> v.y;
-			u.z = 1; v.z = 0;
-			if (d == 'i') {
-				ccglib::vector3D ans = ccglib::to_implicit(u,v);
-				ans.apply_eps(eps);
-				cout << ans.x << ' ' << ans.y << ' ' << ans.z << endl;
-			} else if (d == 'p') {
-				u.apply_eps(eps); v.apply_eps(eps);
-				cout << u.x << ' ' << u.y << ' ' << v.x << ' ' << v.y << endl;
-			} else if (d == '2') {
-				u.apply_eps(eps); v.apply_eps(eps);
-				cout << u.x << ' ' << u.y << ' ' << u.x+v.x << ' ' << u.y+v.y << endl;
-			}
-		} else if (s == '2') {
-			cin >> u.x >> u.y >> v.x >> v.y;
-			u.z = 1; v.z = 1;
-			if (d == 'i') {
-				ccglib::vector3D ans = ccglib::to_implicit(u,v);
-				ans.apply_eps(eps);
-				cout << ans.x << ' ' << ans.y << ' ' << ans.z << endl;
-			} else if (d == 'p') {
-				u.apply_eps(eps); v.apply_eps(eps);
-				cout << u.x << ' ' << u.y << ' ' << v.x-u.x << ' ' << v.y-u.y << endl;
-			} else if (d == '2') {
-				u.apply_eps(eps); v.apply_eps(eps);
-				cout << u.x << ' ' << u.y << ' ' << v.x << ' ' << v.y << endl;
-			}
+	int nProb; cin >> nProb;
+	for (int T = 1; T <= nProb; T++) {
+		int nPos; cin >> nPos;
+		vector<ccglib::vector3D> prev, cur;
+		for (int i = 0; i < nPos; i++) {
+			double x; cin >> x;
+			prev.push_back(ccglib::vector3D(x, 1, 0));
 		}
+		ccglib::vector3D ans;
+		while (nPos > 1) {
+			cur.clear();
+			for (int j = 1; j < nPos; j++) {
+				ccglib::vector3D u = (prev[j]-prev[j-1])/2.0;
+				ccglib::vector3D v = sqrt((4-dot(u,u))/dot(u,u)) * ccglib::vector3D(-u.y, u.x, 0);
+				cur.push_back(prev[j-1]+u+v);
+			}
+			prev = cur;
+			nPos--;
+		}
+		cout << T << ": " << prev[0].x << ' ' << prev[0].y << endl;
 	}
 	return 0;
 }
