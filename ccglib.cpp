@@ -24,6 +24,12 @@ namespace ccglib {
 		vector3D operator/(double r) const {
 			return vector3D(x/r,y/r,z/r);
 		}
+		double operator*(const vector3D& r) const { // dot product
+			return x*r.x+y*r.y+z*r.z;
+		}
+		vector3D operator%(const vector3D& r) const { // cross product
+			return vector3D(y*r.z-r.y*z, z*r.x-r.z*x, x*r.y-r.x*y);
+		}
 		bool operator==(const vector3D& r) const {
 			return (x == r.x) && (y == r.y) && (z == r.z);
 		}
@@ -44,14 +50,8 @@ namespace ccglib {
 			z = (abs(z) < eps ? 0 : z);
 		}
 	};
-	double dot(const vector3D& u, const vector3D& v) {
-		return u.x*v.x+u.y*v.y+u.z*v.z;
-	}
 	double norm(const vector3D& u) {
 		return sqrt(dot(u,u));
-	}
-	vector3D cross(const vector3D& u, const vector3D& v) {
-		return vector3D(u.y*v.z-v.y*u.z, u.z*v.x-v.z*u.x, u.x*v.y-v.x*u.y);
 	}
 	vector3D proj(const vector3D& u, const vector3D& v) {
 		return (dot(u,v)/dot(v,v))*v;
@@ -104,28 +104,6 @@ namespace ccglib {
 }
 
 int main() {
-	cout.precision(4);
-	cout << fixed;
-	int nProb; cin >> nProb;
-	for (int T = 1; T <= nProb; T++) {
-		int nPos; cin >> nPos;
-		vector<ccglib::vector3D> prev, cur;
-		for (int i = 0; i < nPos; i++) {
-			double x; cin >> x;
-			prev.push_back(ccglib::vector3D(x, 1, 0));
-		}
-		ccglib::vector3D ans;
-		while (nPos > 1) {
-			cur.clear();
-			for (int j = 1; j < nPos; j++) {
-				ccglib::vector3D u = (prev[j]-prev[j-1])/2.0;
-				ccglib::vector3D v = sqrt((4-dot(u,u))/dot(u,u)) * ccglib::vector3D(-u.y, u.x, 0);
-				cur.push_back(prev[j-1]+u+v);
-			}
-			prev = cur;
-			nPos--;
-		}
-		cout << T << ": " << prev[0].x << ' ' << prev[0].y << endl;
-	}
+	
 	return 0;
 }
